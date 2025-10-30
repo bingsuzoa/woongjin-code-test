@@ -3,7 +3,6 @@ package com.wjc.codetest.product.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
-import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
 import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
 import com.wjc.codetest.product.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
