@@ -32,4 +32,8 @@ public class Category {
     public void addProduct(Product product) {
         products.add(product);
     }
+
+    public void removeProduct(Long productId) {
+        products.removeIf(product -> product.getId().equals(productId));
+    }
 }
