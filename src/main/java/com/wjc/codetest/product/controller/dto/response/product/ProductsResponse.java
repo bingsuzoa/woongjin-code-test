@@ -1,6 +1,4 @@
-package com.wjc.codetest.product.controller.dto.response;
-
-import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
+package com.wjc.codetest.product.controller.dto.response.product;
 
 import java.util.List;
 
