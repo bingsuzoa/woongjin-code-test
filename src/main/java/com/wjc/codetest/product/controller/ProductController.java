@@ -44,9 +44,9 @@ public class ProductController {
         return ResponseEntity.ok(productService.createProduct(createProductRequest));
     }
 
-    @PostMapping(value = "/delete/product/{productId}")
+    @DeleteMapping("/{productId}")
     public ResponseEntity<Boolean> deleteProduct(@PathVariable(name = "productId") Long productId){
-        productService.deleteById(productId);
+        productService.delete(productId);
         return ResponseEntity.ok(true);
     }
 

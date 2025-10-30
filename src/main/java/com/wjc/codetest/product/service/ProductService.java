@@ -66,6 +66,14 @@ public class ProductService {
         return categoryOptional.get();
     }
 
+    /// tradeOff
+    /// 조회 후 삭제(선택) : 비즈니스 로직에서 예외를 명시적으로 처리할 수 있음 / 2번 조회 발생
+    /// repository 삭제 : 1번 조회 / 코드 가독성, 일관성 떨어짐
+    /// -> id 조회는 index 조회이므로 한번 더 조회한다고 해서 성능에 큰 영향을 주지 않음
+    public void delete(Long productId) {
+        productRepository.delete(getProductEntity(productId));
+    }
+
     public Product update(UpdateProductRequest dto) {
         Product product = getProductById(dto.getId());
         product.setCategory(dto.getCategory());
@@ -73,11 +81,6 @@ public class ProductService {
         Product updatedProduct = productRepository.save(product);
         return updatedProduct;
 
-    }
-
-    public void deleteById(Long productId) {
-        Product product = getProductById(productId);
-        productRepository.delete(product);
     }
 
     public Page<Product> getListByCategory(GetProductListRequest dto) {
