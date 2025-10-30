@@ -1,5 +1,6 @@
 package com.wjc.codetest.product.repository;
 
+import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
 import com.wjc.codetest.product.model.domain.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId")
-    Page<Product> findAllByCategory(@Param("categoryId") Long categoryId, Pageable pageable);
+    @Query("""
+                SELECT new com.wjc.codetest.product.controller.dto.response.product.ProductDto(
+                    p.id,
+                    p.category.id,
+                    p.name
+                )
+                FROM Product p
+                WHERE p.category.id = :categoryId
+            """)
+    Page<ProductDto> findAllByCategory(@Param("categoryId") Long categoryId, Pageable pageable);
 }

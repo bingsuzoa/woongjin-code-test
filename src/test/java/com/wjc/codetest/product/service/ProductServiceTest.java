@@ -114,11 +114,10 @@ class ProductServiceTest {
     @DisplayName("카테고리별 상품 페이징 조회 성공")
     void getProductsByCategory_success() {
         // given
-        Category category = new Category("육류");
-        Product p1 = new Product(category, "소고기");
-        Product p2 = new Product(category, "닭고기");
+        ProductDto p1 = new ProductDto(1L, 1L, "소고기");
+        ProductDto p2 = new ProductDto(2L, 1L, "닭고기");
 
-        Page<Product> productPage = new PageImpl<>(List.of(p1, p2));
+        Page<ProductDto> productPage = new PageImpl<>(List.of(p1, p2));
         when(productRepository.findAllByCategory(eq(1L), any(Pageable.class))).thenReturn(productPage);
 
         // when

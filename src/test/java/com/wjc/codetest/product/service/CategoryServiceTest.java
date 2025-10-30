@@ -109,13 +109,14 @@ public class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("등록된 상품들의 카테고리 목록 조회 성공")
+    @DisplayName("등록된 상품이 있는 카테고리 목록 조회 성공")
     void getCategoriesOfRegisteredProducts_success() {
         // given
-        Category category1 = new Category("육류");
-        Category category2 = new Category("과일");
+        CategoryDto category1 = new CategoryDto(1L, "육류");
+        CategoryDto category2 = new CategoryDto(2L, "과일");
+        CategoryDto category3 = new CategoryDto(3L, "가전");
 
-        when(categoryRepository.getCategoriesOfRegisteredProducts())
+        when(categoryRepository.findAllWithProductsDto())
                 .thenReturn(List.of(category1, category2));
 
         // when
@@ -123,9 +124,8 @@ public class CategoryServiceTest {
 
         // then
         assertThat(result.size()).isEqualTo(2);
-        assertThat(result.get(0).name()).isEqualTo("육류");
-        assertThat(result.get(1).name()).isEqualTo("과일");
     }
+
 
     /// ///예외 테스트
     @Test

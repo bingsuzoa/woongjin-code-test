@@ -46,9 +46,6 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public List<CategoryDto> getCategoriesOfRegisteredProducts() {
-        List<Category> categories = categoryRepository.getCategoriesOfRegisteredProducts();
-        return categories.stream()
-                .map(category -> new CategoryDto(category.getId(), category.getName()))
-                .toList();
+        return categoryRepository.findAllWithProductsDto();
     }
 }

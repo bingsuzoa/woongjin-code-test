@@ -73,8 +73,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductDto> getProductsByCategory(Long categoryId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<Product> products = productRepository.findAllByCategory(categoryId, pageRequest);
-        return products.map(this::getProductDto);
+        return productRepository.findAllByCategory(categoryId, pageRequest);
     }
 
     private ProductDto getProductDto(Product product) {

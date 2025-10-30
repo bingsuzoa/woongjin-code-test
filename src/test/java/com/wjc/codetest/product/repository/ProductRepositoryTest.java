@@ -1,5 +1,6 @@
 package com.wjc.codetest.product.repository;
 
+import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
 import com.wjc.codetest.product.model.domain.Category;
 import com.wjc.codetest.product.model.domain.Product;
 import jakarta.persistence.EntityManager;
@@ -45,13 +46,13 @@ class ProductRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        Page<Product> result = productRepository.findAllByCategory(category1.getId(), pageable);
+        Page<ProductDto> result = productRepository.findAllByCategory(category1.getId(), pageable);
 
         // then
         assertThat(result.getContent().size()).isEqualTo(10);
         assertThat(result.getTotalElements()).isEqualTo(15);
         assertThat(result.getTotalPages()).isEqualTo(2);
-        assertThat(result.getContent().get(0).getCategory().getId())
+        assertThat(result.getContent().get(0).categoryId())
                 .isEqualTo(category1.getId());
     }
 
@@ -67,7 +68,7 @@ class ProductRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        Page<Product> result = productRepository.findAllByCategory(emptyCategory.getId(), pageable);
+        Page<ProductDto> result = productRepository.findAllByCategory(emptyCategory.getId(), pageable);
 
         // then
         assertThat(result.getContent().size()).isZero();
