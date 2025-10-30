@@ -1,6 +1,5 @@
 package com.wjc.codetest.product.service;
 
-import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
 import com.wjc.codetest.product.model.domain.Category;
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
 import com.wjc.codetest.product.model.domain.Product;
@@ -12,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -37,10 +37,12 @@ public class ProductService {
 
     public static final String NOT_EXIST_PRODUCT = "product not found";
 
+    @Transactional(readOnly = true)
     public ProductDto getProduct(Long productId) {
         return getProductDto(getProductEntity(productId));
     }
 
+    @Transactional(readOnly = true)
     private Product getProductEntity(Long productId) {
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
@@ -49,15 +51,18 @@ public class ProductService {
         return productOptional.get();
     }
 
+    @Transactional
     public ProductDto createProduct(CreateProductRequest createProductRequest) {
         Category category = categoryService.getCategoryEntity(createProductRequest.categoryId());
         return getProductDto(productRepository.save(new Product(category, createProductRequest.name())));
     }
 
+    @Transactional
     public void delete(Long productId) {
         productRepository.delete(getProductEntity(productId));
     }
 
+    @Transactional
     public ProductDto update(UpdateProductRequest updateProductRequest) {
         Product product = getProductEntity(updateProductRequest.id());
         categoryService.updateCategory(product, updateProductRequest.categoryId());
@@ -65,6 +70,7 @@ public class ProductService {
         return getProductDto(product);
     }
 
+    @Transactional(readOnly = true)
     public Page<ProductDto> getProductsByCategory(Long categoryId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Product> products = productRepository.findAllByCategory(categoryId, pageRequest);

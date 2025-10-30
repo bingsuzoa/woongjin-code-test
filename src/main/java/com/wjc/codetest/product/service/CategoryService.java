@@ -7,6 +7,7 @@ import com.wjc.codetest.product.model.domain.Product;
 import com.wjc.codetest.product.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,11 +20,13 @@ public class CategoryService {
 
     public static final String NOT_EXIST_CATEGORY = "category not found";
 
+    @Transactional
     public CategoryDto create(CreateCategoryRequest createCategoryRequest) {
         Category category = categoryRepository.save(new Category(createCategoryRequest.name()));
         return new CategoryDto(category.getId(), category.getName());
     }
 
+    @Transactional
     public Category updateCategory(Product product, Long categoryId) {
         if (!product.isInCategory(categoryId)) {
             Category newCategory = getCategoryEntity(categoryId);
@@ -32,6 +35,7 @@ public class CategoryService {
         return getCategoryEntity(categoryId);
     }
 
+    @Transactional(readOnly = true)
     public Category getCategoryEntity(Long categoryId) {
         Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
         if (categoryOptional.isEmpty()) {
@@ -40,6 +44,7 @@ public class CategoryService {
         return categoryOptional.get();
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryDto> getCategoriesOfRegisteredProducts() {
         List<Category> categories = categoryRepository.getCategoriesOfRegisteredProducts();
         return categories.stream()
