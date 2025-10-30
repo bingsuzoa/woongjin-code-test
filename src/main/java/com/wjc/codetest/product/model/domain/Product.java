@@ -24,12 +24,12 @@ public class Product {
     protected Product() {
     }
 
-    public Product(String name) {
-        this.name = name;
-    }
-
-    public void assignCategory(Category category) {
+    public Product(
+            Category category,
+            String name)
+    {
         this.category = category;
+        this.name = name;
         category.addProduct(this);
     }
 
