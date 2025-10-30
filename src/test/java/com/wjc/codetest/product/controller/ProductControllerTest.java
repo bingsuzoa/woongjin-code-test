@@ -115,21 +115,4 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.products[0].name").value("삼겹살"))
                 .andExpect(jsonPath("$.products[1].name").value("목살"));
     }
-
-    @Test
-    @DisplayName("등록된 상품들의 카테고리 목록 조회")
-    void getCategoriesOfRegisteredProducts_success() throws Exception {
-        // given
-        List<CategoryDto> categories = List.of(
-                new CategoryDto(1L, "육류"),
-                new CategoryDto(2L, "과일")
-        );
-        given(productService.getCategoriesOfRegisteredProducts()).willReturn(categories);
-
-        // when & then
-        mockMvc.perform(get("/products/categories"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("육류"))
-                .andExpect(jsonPath("$[1].name").value("과일"));
-    }
 }

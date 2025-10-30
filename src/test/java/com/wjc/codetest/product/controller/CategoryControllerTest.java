@@ -13,8 +13,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -47,5 +50,22 @@ class CategoryControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("육류"));
+    }
+
+    @Test
+    @DisplayName("등록된 상품들의 카테고리 목록 조회")
+    void getCategoriesOfRegisteredProducts_success() throws Exception {
+        // given
+        List<CategoryDto> categories = List.of(
+                new CategoryDto(1L, "육류"),
+                new CategoryDto(2L, "과일")
+        );
+        given(categoryService.getCategoriesOfRegisteredProducts()).willReturn(categories);
+
+        // when & then
+        mockMvc.perform(get("/categories"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("육류"))
+                .andExpect(jsonPath("$[1].name").value("과일"));
     }
 }

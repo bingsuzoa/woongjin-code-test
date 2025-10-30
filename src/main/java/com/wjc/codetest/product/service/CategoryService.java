@@ -8,6 +8,7 @@ import com.wjc.codetest.product.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,5 +38,12 @@ public class CategoryService {
             throw new IllegalArgumentException(NOT_EXIST_CATEGORY);
         }
         return categoryOptional.get();
+    }
+
+    public List<CategoryDto> getCategoriesOfRegisteredProducts() {
+        List<Category> categories = categoryRepository.getCategoriesOfRegisteredProducts();
+        return categories.stream()
+                .map(category -> new CategoryDto(category.getId(), category.getName()))
+                .toList();
     }
 }

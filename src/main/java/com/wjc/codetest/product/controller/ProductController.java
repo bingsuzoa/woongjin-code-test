@@ -57,9 +57,4 @@ public class ProductController {
         Page<ProductDto> products = productService.getProductsByCategory(categoryId, page, size);
         return ResponseEntity.ok(new ProductsResponse(products.getContent(), products.getTotalPages(), products.getTotalElements(), products.getNumber()));
     }
-
-    @GetMapping("/categories")
-    public ResponseEntity<List<CategoryDto>> getCategoriesOfRegisteredProducts(){
-        return ResponseEntity.ok(productService.getCategoriesOfRegisteredProducts());
-    }
 }

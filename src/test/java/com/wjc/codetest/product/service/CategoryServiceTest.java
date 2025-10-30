@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -105,6 +106,25 @@ public class CategoryServiceTest {
         // then
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getName()).isEqualTo(CATEGORY_NAME);
+    }
+
+    @Test
+    @DisplayName("등록된 상품들의 카테고리 목록 조회 성공")
+    void getCategoriesOfRegisteredProducts_success() {
+        // given
+        Category category1 = new Category("육류");
+        Category category2 = new Category("과일");
+
+        when(categoryRepository.getCategoriesOfRegisteredProducts())
+                .thenReturn(List.of(category1, category2));
+
+        // when
+        List<CategoryDto> result = categoryService.getCategoriesOfRegisteredProducts();
+
+        // then
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.get(0).name()).isEqualTo("육류");
+        assertThat(result.get(1).name()).isEqualTo("과일");
     }
 
     /// ///예외 테스트
