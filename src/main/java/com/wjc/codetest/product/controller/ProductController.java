@@ -29,6 +29,9 @@ public class ProductController {
     /// 문제 3 : getProductById 메서드 네이밍이 객체지향적인 코드가 아님
     /// 데이터 접근이 아닌 행위가 드러나도록 변경해야 함
 
+    /// 문제 4: 요청 DTO의 이름이 단순히 dto로 작성되어 의도를 파악하기 어려움
+    /// DTO의 용도를 명확히 드러내도록 네이밍을 개선해야 함
+
     private final ProductService productService;
 
     @GetMapping("/{productId}")
@@ -36,10 +39,9 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProduct(productId));
     }
 
-    @PostMapping(value = "/create/product")
-    public ResponseEntity<Product> createProduct(@RequestBody CreateProductRequest dto){
-        Product product = productService.create(dto);
-        return ResponseEntity.ok(product);
+    @PostMapping
+    public ResponseEntity<ProductDto> createProduct(@RequestBody CreateProductRequest createProductRequest){
+        return ResponseEntity.ok(productService.createProduct(createProductRequest));
     }
 
     @PostMapping(value = "/delete/product/{productId}")

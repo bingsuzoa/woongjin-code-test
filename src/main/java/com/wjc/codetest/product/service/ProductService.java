@@ -1,10 +1,12 @@
 package com.wjc.codetest.product.service;
 
+import com.wjc.codetest.product.model.domain.Category;
 import com.wjc.codetest.product.model.request.CreateProductRequest;
 import com.wjc.codetest.product.model.request.GetProductListRequest;
 import com.wjc.codetest.product.model.domain.Product;
 import com.wjc.codetest.product.model.request.UpdateProductRequest;
 import com.wjc.codetest.product.model.response.ProductDto;
+import com.wjc.codetest.product.repository.CategoryRepository;
 import com.wjc.codetest.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +35,10 @@ public class ProductService {
     /// -> Controller는 비즈니스 로직을 처리하는 곳이 아니므로 Entity를 전달할 이유가 없음
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     public static final String NOT_EXIST_PRODUCT = "product not found";
+    public static final String NOT_EXIST_CATEGORY = "category not found";
 
     public ProductDto getProduct(Long productId) {
         return getProductDto(getProductEntity(productId));
@@ -42,15 +46,24 @@ public class ProductService {
 
     private Product getProductEntity(Long productId) {
         Optional<Product> productOptional = productRepository.findById(productId);
-        if(productOptional.isEmpty()) {
+        if (productOptional.isEmpty()) {
             throw new IllegalArgumentException(NOT_EXIST_PRODUCT);
         }
         return productOptional.get();
     }
 
-    public Product create(CreateProductRequest dto) {
-        Product product = new Product(dto.name());
-        return productRepository.save(product);
+    public ProductDto createProduct(CreateProductRequest createProductRequest) {
+        Category category = getCategoryEntity(createProductRequest.categoryId());
+        Product product = new Product(category, createProductRequest.name());
+        return getProductDto(productRepository.save(product));
+    }
+
+    private Category getCategoryEntity(Long categoryId) {
+        Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
+        if (categoryOptional.isEmpty()) {
+            throw new IllegalArgumentException(NOT_EXIST_CATEGORY);
+        }
+        return categoryOptional.get();
     }
 
     public Product update(UpdateProductRequest dto) {

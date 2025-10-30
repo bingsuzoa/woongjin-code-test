@@ -1,21 +1,10 @@
 package com.wjc.codetest.product.model.request;
 
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class CreateProductRequest {
-    private String category;
-    private String name;
-
-    public CreateProductRequest(String category) {
-        this.category = category;
-    }
-
-    public CreateProductRequest(String category, String name) {
-        this.category = category;
-        this.name = name;
-    }
+public record CreateProductRequest(
+        Long categoryId,
+        String name
+){
 }
-
+/// 문제: 단순 데이터 전달용 DTO임에도 일반 class로 작성되어 불필요한 코드가 많음
+// DTO는 데이터를 전달하기 위한 용도이므로, record를 사용해 역할에 충실하도록 개선함
