@@ -18,19 +18,10 @@ import java.util.List;
 @RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
-    /// 문제 1 : RESTful API 설계 원칙에 맞지 않음
-    /// RESTful API는 자원중심으로 설계, 행동은 HTTP Method 통해 표현해야 함
-    /// 현재 구현은 이러한 일관된 의사소통 규칙을 따르지 않아 RESTful하지 않음
-
-    /// 문제 2 : Entity을 직접 반환하고 있음
-    /// 객체를 JSON으로 바꾸는 과정에서 연관된 엔티티를 재귀적으로 탐색함
-    /// Product(1) → Category(N) → Product(1)로 순환 참조가 발생할 수 있음
-
-    /// 문제 3 : getProductById 메서드 네이밍이 객체지향적인 코드가 아님
-    /// 데이터 접근이 아닌 행위가 드러나도록 변경해야 함
-
-    /// 문제 4: 요청 DTO의 이름이 단순히 dto로 작성되어 의도를 파악하기 어려움
-    /// DTO의 용도를 명확히 드러내도록 네이밍을 개선해야 함
+    /// 문제 1: RESTful 원칙 위반 - 자원 중심 설계 및 HTTP Method 일관성 미흡
+    /// 문제 2: Entity 직접 반환으로 인한 순환 참조 위험 (Product ↔ Category)
+    /// 문제 3: 메서드 네이밍이 객체지향적이지 않음(getProductById → 행위를 드러내도록 변경 필요)
+    /// 문제 4: 모든 응답을 200 OK로 반환함 — 생성 시에는 201 Created + Location 헤더로 반환 필요
 
     private final ProductService productService;
 
@@ -52,8 +43,6 @@ public class ProductController {
         return ResponseEntity.ok(true);
     }
 
-    /// put(전체 수정) vs patch(일부 수정)
-    /// 일부 수정에도 PUT 선택한 이유 : 클라이언트 - 서버간 데이터 전달에 일관성을 유지하기 위해 선택
     @PutMapping
     public ResponseEntity<ProductDto> updateProduct(@RequestBody UpdateProductRequest updateProductRequest){
         return ResponseEntity.ok(productService.update(updateProductRequest));
