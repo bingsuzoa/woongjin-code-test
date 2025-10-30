@@ -4,13 +4,14 @@ import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequ
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
 import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
 import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
-import com.wjc.codetest.product.controller.dto.response.ProductsResponse;
+import com.wjc.codetest.product.controller.dto.response.product.ProductsResponse;
 import com.wjc.codetest.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -40,7 +41,9 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ProductDto> createProduct(@RequestBody CreateProductRequest createProductRequest){
-        return ResponseEntity.ok(productService.createProduct(createProductRequest));
+        ProductDto product = productService.createProduct(createProductRequest);
+        URI location = URI.create("/products/" + product.id());
+        return ResponseEntity.created(location).body(product);
     }
 
     @DeleteMapping("/{productId}")
