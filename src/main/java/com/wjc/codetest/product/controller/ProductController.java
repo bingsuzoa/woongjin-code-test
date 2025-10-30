@@ -59,7 +59,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.update(updateProductRequest));
     }
 
-    @GetMapping("/{categoryId}")
+    @GetMapping("/category/{categoryId}")
     public ResponseEntity<ProductsResponse> getProductsOfCategory(
             @PathVariable Long categoryId,
             @RequestParam int page,
