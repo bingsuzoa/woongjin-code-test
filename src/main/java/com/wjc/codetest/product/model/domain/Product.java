@@ -6,12 +6,11 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 public class Product {
 
     @Id
     @Column(name = "product_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "category")
@@ -23,16 +22,11 @@ public class Product {
     protected Product() {
     }
 
-    public Product(String category, String name) {
+    public Product(
+            String category,
+            String name
+    ) {
         this.category = category;
         this.name = name;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public String getName() {
-        return name;
     }
 }
