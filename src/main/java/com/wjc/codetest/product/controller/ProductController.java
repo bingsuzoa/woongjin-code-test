@@ -1,11 +1,10 @@
 package com.wjc.codetest.product.controller;
 
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
-import com.wjc.codetest.product.controller.dto.request.GetProductListRequest;
-import com.wjc.codetest.product.model.domain.Product;
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
-import com.wjc.codetest.product.controller.dto.response.ProductDto;
-import com.wjc.codetest.product.controller.dto.response.ProductListResponse;
+import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
+import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
+import com.wjc.codetest.product.controller.dto.response.ProductsResponse;
 import com.wjc.codetest.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -57,15 +56,18 @@ public class ProductController {
         return ResponseEntity.ok(productService.update(updateProductRequest));
     }
 
-    @PostMapping(value = "/product/list")
-    public ResponseEntity<ProductListResponse> getProductListByCategory(@RequestBody GetProductListRequest dto){
-        Page<Product> productList = productService.getListByCategory(dto);
-        return ResponseEntity.ok(new ProductListResponse(productList.getContent(), productList.getTotalPages(), productList.getTotalElements(), productList.getNumber()));
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<ProductsResponse> getProductsOfCategory(
+            @PathVariable Long categoryId,
+            @RequestParam int page,
+            @RequestParam int size
+    ){
+        Page<ProductDto> products = productService.getProductsByCategory(categoryId, page, size);
+        return ResponseEntity.ok(new ProductsResponse(products.getContent(), products.getTotalPages(), products.getTotalElements(), products.getNumber()));
     }
 
-    @GetMapping(value = "/product/category/list")
-    public ResponseEntity<List<String>> getProductListByCategory(){
-        List<String> uniqueCategories = productService.getUniqueCategories();
-        return ResponseEntity.ok(uniqueCategories);
+    @GetMapping("/categories")
+    public ResponseEntity<List<CategoryDto>> getCategoriesOfRegisteredProducts(){
+        return ResponseEntity.ok(productService.getCategoriesOfRegisteredProducts());
     }
 }

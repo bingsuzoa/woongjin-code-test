@@ -1,17 +1,16 @@
 package com.wjc.codetest.product.service;
 
+import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
 import com.wjc.codetest.product.model.domain.Category;
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
-import com.wjc.codetest.product.controller.dto.request.GetProductListRequest;
 import com.wjc.codetest.product.model.domain.Product;
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
-import com.wjc.codetest.product.controller.dto.response.ProductDto;
+import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
 import com.wjc.codetest.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -70,16 +69,20 @@ public class ProductService {
         return getProductDto(product);
     }
 
-    public Page<Product> getListByCategory(GetProductListRequest dto) {
-        PageRequest pageRequest = PageRequest.of(dto.getPage(), dto.getSize(), Sort.by(Sort.Direction.ASC, "category"));
-        return productRepository.findAllByCategory(dto.getCategory(), pageRequest);
-    }
-
-    public List<String> getUniqueCategories() {
-        return productRepository.findDistinctCategories();
+    public Page<ProductDto> getProductsByCategory(Long categoryId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Product> products = productRepository.findAllByCategory(categoryId, pageRequest);
+        return products.map(this::getProductDto);
     }
 
     private ProductDto getProductDto(Product product) {
         return new ProductDto(product.getId(), product.getCategoryId(), product.getName());
+    }
+
+    public List<CategoryDto> getCategoriesOfRegisteredProducts() {
+        List<Category> categories = productRepository.getCategoriesOfRegisteredProducts();
+        return categories.stream()
+                .map(category -> new CategoryDto(category.getId(), category.getName()))
+                .toList();
     }
 }

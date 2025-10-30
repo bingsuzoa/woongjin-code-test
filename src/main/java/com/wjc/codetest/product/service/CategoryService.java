@@ -8,6 +8,7 @@ import com.wjc.codetest.product.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,5 +39,4 @@ public class CategoryService {
         }
         return categoryOptional.get();
     }
-
 }
