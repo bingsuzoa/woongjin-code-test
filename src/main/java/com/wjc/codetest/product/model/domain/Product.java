@@ -2,8 +2,6 @@ package com.wjc.codetest.product.model.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
-import org.apache.logging.log4j.util.Lazy;
 
 @Entity
 @Getter
@@ -26,8 +24,8 @@ public class Product {
 
     public Product(
             Category category,
-            String name)
-    {
+            String name
+    ) {
         this.category = category;
         this.name = name;
         category.addProduct(this);
@@ -35,5 +33,23 @@ public class Product {
 
     public Long getCategoryId() {
         return category.getId();
+    }
+
+    public boolean isInCategory(Long categoryId) {
+        if(getCategoryId().equals(categoryId)) {
+            return true;
+        }
+        return false;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public Category changeCategory(Category newCategory) {
+        category.removeProduct(this.id);
+        category = newCategory;
+        category.addProduct(this);
+        return category;
     }
 }

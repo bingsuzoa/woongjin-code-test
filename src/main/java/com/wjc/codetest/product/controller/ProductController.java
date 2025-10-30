@@ -1,11 +1,11 @@
 package com.wjc.codetest.product.controller;
 
-import com.wjc.codetest.product.model.request.CreateProductRequest;
-import com.wjc.codetest.product.model.request.GetProductListRequest;
+import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
+import com.wjc.codetest.product.controller.dto.request.GetProductListRequest;
 import com.wjc.codetest.product.model.domain.Product;
-import com.wjc.codetest.product.model.request.UpdateProductRequest;
-import com.wjc.codetest.product.model.response.ProductDto;
-import com.wjc.codetest.product.model.response.ProductListResponse;
+import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
+import com.wjc.codetest.product.controller.dto.response.ProductDto;
+import com.wjc.codetest.product.controller.dto.response.ProductListResponse;
 import com.wjc.codetest.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -50,10 +50,11 @@ public class ProductController {
         return ResponseEntity.ok(true);
     }
 
-    @PostMapping(value = "/update/product")
-    public ResponseEntity<Product> updateProduct(@RequestBody UpdateProductRequest dto){
-        Product product = productService.update(dto);
-        return ResponseEntity.ok(product);
+    /// put(전체 수정) vs patch(일부 수정)
+    /// 일부 수정에도 PUT 선택한 이유 : 클라이언트 - 서버간 데이터 전달에 일관성을 유지하기 위해 선택
+    @PutMapping
+    public ResponseEntity<ProductDto> updateProduct(@RequestBody UpdateProductRequest updateProductRequest){
+        return ResponseEntity.ok(productService.update(updateProductRequest));
     }
 
     @PostMapping(value = "/product/list")
