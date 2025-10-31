@@ -13,6 +13,27 @@ Product 생성 시 Category 정보가 단순 문자열로만 표현되어 확장
 - Category를 엔티티로 분리하여 상태와 식별자를 가질 수 있도록 개선함.
 - Product 생성 시 Category 엔티티를 참조하도록 하여 도메인 간 관계를 명확히 표현함.
 
+#### 1-2. Product에 고유 식별 코드(productCode) 추가
+
+**문제**  
+기존 Product 엔티티는 상품 이름(`name`)과 카테고리(`category.name`)만으로 구성되어 있었음.  
+그러나 실제 비즈니스 흐름상, 동일한 이름의 상품이 여러 개 존재할 수 있으며, 이를 구분할 수단이 필요함.
+
+**개선 내용**
+- 각 상품을 명확히 식별할 수 있도록 `productCode` 필드를 추가함.
+- `productCode`는 `@Column(unique = true, updatable = false, nullable = false)` 속성을 부여하여  
+  중복 방지 및 불변성을 보장함.
+
+
+**Trade-Off (ProductCode를 PK로 설정할 것인가?)**
+- 초기 계획에서는 `ProductCode`가 변경되지 않고 고유하다는 특성상, PK 후보로 고려함.
+- 그러나 PK 인덱스가 설정된 상태에서 `ProductCode` 정책이 변경될 경우,  
+  인덱스 재생성과 FK 참조 테이블 갱신 등으로 인해 운영 장애가 발생할 수 있음.
+- 또한 PK의 핵심 역할은 고유성과 식별성이지만,  
+  `ProductCode`는 문자열 기반이므로 `Long` 타입의 단순 정수 비교보다 성능상 비효율적임.
+- 이에 따라 내부 식별자는 `id(Long)`로 유지하고,  
+  `ProductCode`는 별도의 필드로 관리하여 비즈니스 식별자로만 활용함.
+
 ---
 
 ### 2. Controller
@@ -47,7 +68,18 @@ HTTP Method와 URI 설계가 RESTful 원칙에 어긋남.
 
 ---
 
-#### 2-3. Entity 직접 반환 문제
+#### 2-3. ApiResponse 기반 공통 응답 포맷 통일
+
+**문제**  
+Controller별 응답 형식이 제각각이어서 테스트, 예외 처리, 클라이언트 파싱 시 불편함이 발생함.  
+일부 API는 Boolean 또는 DTO를 직접 반환하고, 일부는 단순 `ResponseEntity.ok()`만 사용함.
+
+**개선 내용**
+- `ApiResponse<T>` 클래스를 도입하여 모든 API 응답을 일관된 구조로 반환하도록 통합함.
+- 성공/실패 응답을 정적 팩토리 메서드(`success`, `error`)로 구분하여 직관적인 코드 흐름을 제공함.
+- `BusinessException`, `GlobalExceptionHandler`를 통해 예외 응답도 동일한 포맷으로 처리하도록 개선함.
+
+#### 2-4. Entity 직접 반환 문제
 
 **문제**  
 Entity를 그대로 JSON으로 변환할 경우,  
@@ -59,14 +91,13 @@ Entity를 그대로 JSON으로 변환할 경우,
 
 ---
 
-#### 2-4. 메서드 네이밍 개선 필요
+#### 2-5. 메서드 네이밍 개선 필요
 
 **문제**  
 메서드명이 데이터 접근 중심(`get`, `findBy...`)으로 되어 있어 행위 중심의 표현이 부족함.
 
 **개선 내용**
-- 도메인 행위 중심으로 메서드명을 개선함.  
-  예: `createProduct` → `registerProduct`, `deleteProduct` → `removeProduct`.
+- 도메인 행위 중심으로 메서드명을 개선함.
 
 ---
 
@@ -79,8 +110,9 @@ Entity를 그대로 JSON으로 변환할 경우,
 수정 시 코드를 직접 찾아 변경해야 하므로 유지보수가 어렵고 확장성도 저하됨.
 
 **개선 내용**
-- 하드코딩된 값을 상수(`const val` / `static final`) 또는 설정 파일(`application.yml`)로 분리함.
-- 환경별 설정이 필요한 값은 `@Value` 또는 `ConfigurationProperties`를 통해 주입받도록 개선함.
+- 하드코딩된 응답 코드와 메시지를 `ResponseCode` enum으로 통합 관리함.
+- 각 도메인별 응답 상태를 enum 상수로 정의하여 의미를 명확히 하고,  
+  코드 내에서 직접 문자열을 사용하는 하드코딩 방식을 제거함.
 
 ---
 
@@ -90,8 +122,7 @@ Entity를 그대로 JSON으로 변환할 경우,
 `getProductById` 메서드명이 데이터 접근 중심으로 작성되어 객체지향적이지 않음.
 
 **개선 내용**
-- 메서드 명을 행위 중심으로 개선함.  
-  예: `getProductById` → `findProduct`, `loadProductDetail` 등
+- 메서드 명을 행위 중심으로 개선함.
 - 메서드명만 보고도 도메인 동작 의도가 명확히 드러나도록 개선함.
 
 ---
@@ -110,13 +141,18 @@ Entity를 그대로 JSON으로 변환할 경우,
 #### 3-4. Service에서 Controller로 Entity 직접 반환
 
 **문제**  
-Service 계층에서 Entity를 Controller로 직접 반환하고 있음.  
-Controller는 비즈니스 로직을 처리하지 않으므로 Entity를 노출할 필요가 없음.  
-Entity 노출 시 보안, 캡슐화, 유지보수 측면에서 문제가 발생할 수 있음.
+- Service 계층에서 Entity를 Controller로 직접 반환하고 있음.  
+- Controller는 비즈니스 로직을 처리하지 않으므로 Entity를 노출할 필요가 없음.  
+- Entity 노출 시 보안, 캡슐화, 유지보수 측면에서 문제가 발생할 수 있음.
 
 **개선 내용**
 - Service → Controller 간 데이터 전달 시 DTO를 사용하도록 수정함.
 - DTO를 통해 필요한 데이터만 반환하여 계층 간 의존성을 줄이고 응답 구조를 명확히 유지함.
+
+**Entity 직접 반환 시 발생할 수 있는 문제**
+- Domain의 내부 구조, 관계, 불필요한 필드가 노출 되어 캡슐화가 깨질 수 있음.
+- Entity는 비즈니스 로직의 중심으로 필드 하나만 수정해도 Controller, Service, Test, 문서 전체에 영향을 줌 
+  Entity의 변경이 클라이언트에 영향을 주므로 유지보수가 어려워짐.
 
 ---
 
@@ -126,7 +162,7 @@ Entity 노출 시 보안, 캡슐화, 유지보수 측면에서 문제가 발생�
 
 **문제**  
 DTO가 단순 데이터 전달용임에도 일반 class로 작성되어  
-필드, 생성자, getter 등의 보일러플레이트 코드가 반복됨.
+필드, 생성자, getter 등의 기본 코드가 반복됨.
 
 **개선 내용**
 - `record`를 사용하여 데이터 전달 역할에 집중하도록 개선함.
@@ -134,9 +170,9 @@ DTO가 단순 데이터 전달용임에도 일반 class로 작성되어
 
 ---
 
-### 5. 성능 개선
+### 6. 성능 개선
 
-#### 5-1. Repository에서 Entity → DTO 직접 반환
+#### 6-1. Repository에서 Entity → DTO 직접 반환
 
 **테스트 시나리오**  
 | 항목 | 설명 |
@@ -149,15 +185,10 @@ DTO가 단순 데이터 전달용임에도 일반 class로 작성되어
 | 조회 방식 | 평균 수행 시간 |
 |------------|----------------|
 | Entity 조회 후 DTO 변환 | 403ms |
-| DTO 직접 조회 (JPQL) | 124ms |
+| DTO 직접 조회 | 124ms |
 
 **결론**
 - DTO 직접 조회 시 약 3.2배 성능 향상.
 - 대용량 조회에서는 엔티티 변환 비용을 피하기 위해 DTO Projection 전략을 사용하는 것이 유리함.
 
 ---
-
-### 6. 종합 의견
-
-- 도메인 간 관계 명확화, RESTful 규칙 준수, Service-Controller 계층 분리, 성능 개선을 전반적으로 달성함.
-- 향후 개선 방향: 예외 처리 일관성 확보 및 `ApiResponse<T>` 기반 응답 포맷 통일.

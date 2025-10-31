@@ -6,6 +6,8 @@ import lombok.Getter;
 @Entity
 @Getter
 public class Product {
+    /// 1-1. Product 생성 시 Category 연관관계 설정 로직 개선
+    /// 1-2. Product에 고유 식별 코드(productCode) 추가
 
     @Id
     @Column(name = "product_id")

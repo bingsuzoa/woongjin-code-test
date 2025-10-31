@@ -18,10 +18,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
-    /// 문제 1: RESTful 원칙 위반 - 자원 중심 설계 및 HTTP Method 일관성 미흡
-    /// 문제 2: Entity 직접 반환으로 인한 순환 참조 위험 (Product ↔ Category)
-    /// 문제 3: 메서드 네이밍이 객체지향적이지 않음(getProductById → 행위를 드러내도록 변경 필요)
-    /// 문제 4: 모든 응답을 200 OK로 반환함 — 생성 시에는 201 Created + Location 헤더로 반환 필요
+    /// 2-1. RESTful 원칙 위반
+    /// 2-2. HTTP 응답 상태 코드 일관성 부족
+    /// 2-3. ApiResponse 기반 공통 응답 포맷 통일
+    /// 2-4. Entity 직접 반환 문제
+    /// 2-5. 메서드 네이밍 개선 필요
 
     private final ProductService productService;
 
