@@ -8,6 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductTest {
 
+    Product getProduct(Category category) {
+        return new Product(category, "삼겹살", "productCode");
+    }
+
     @Test
     @DisplayName("상품 생성 시 카테고리와의 연관관계가 자동으로 설정된다")
     void createProduct_success() {
@@ -15,7 +19,7 @@ class ProductTest {
         Category category = new Category("육류");
 
         // when
-        Product product = new Product(category, "삼겹살");
+        Product product = getProduct(category);
         ReflectionTestUtils.setField(product, "id", 1L);
 
         // then
@@ -29,7 +33,7 @@ class ProductTest {
         // given
         Category category = new Category("과일");
         ReflectionTestUtils.setField(category, "id", 10L);
-        Product product = new Product(category, "사과");
+        Product product = getProduct(category);
 
         // when & then
         assertThat(product.getCategoryId()).isEqualTo(10L);
@@ -41,7 +45,7 @@ class ProductTest {
         // given
         Category category = new Category("과일");
         ReflectionTestUtils.setField(category, "id", 5L);
-        Product product = new Product(category, "배");
+        Product product = getProduct(category);
 
         // when & then
         assertThat(product.isInCategory(5L)).isTrue();
@@ -53,7 +57,7 @@ class ProductTest {
     void updateName_success() {
         // given
         Category category = new Category("과일");
-        Product product = new Product(category, "배");
+        Product product = getProduct(category);
 
         // when
         product.updateName("사과");
@@ -69,7 +73,7 @@ class ProductTest {
         Category oldCategory = new Category("육류");
         Category newCategory = new Category("채소");
 
-        Product product = new Product(oldCategory, "삼겹살");
+        Product product = new Product(oldCategory, "삼겹살", "productCode");
         ReflectionTestUtils.setField(product, "id", 1L);
 
         // when

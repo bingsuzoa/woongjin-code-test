@@ -28,7 +28,7 @@ class CategoryControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper; // JSON 직렬화용
+    private ObjectMapper objectMapper;
 
     @MockBean
     private CategoryService categoryService;
@@ -46,7 +46,7 @@ class CategoryControllerTest {
         mockMvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("육류"));

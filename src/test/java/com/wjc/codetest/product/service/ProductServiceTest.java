@@ -1,5 +1,7 @@
 package com.wjc.codetest.product.service;
 
+import com.wjc.codetest.global.exception.BusinessException;
+import com.wjc.codetest.global.response.ResponseCode;
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
 import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
@@ -45,7 +47,7 @@ class ProductServiceTest {
     void getProduct_success() {
         // given
         Category category = new Category("육류");
-        Product product = new Product(category, PRODUCT_NAME);
+        Product product = new Product(category, PRODUCT_NAME, "productCode1");
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         // when
@@ -60,10 +62,11 @@ class ProductServiceTest {
     @DisplayName("상품 생성 성공 시 ProductDto 반환")
     void createProduct_success() {
         // given
-        CreateProductRequest request = new CreateProductRequest(1L, PRODUCT_NAME);
+        CreateProductRequest request = new CreateProductRequest(1L, PRODUCT_NAME, "productCode1");
         Category category = new Category("육류");
-        Product product = new Product(category, PRODUCT_NAME);
+        Product product = new Product(category, PRODUCT_NAME, "productCode1");
 
+        when(productRepository.existsByProductCode(any())).thenReturn(false);
         when(categoryService.getCategoryEntity(1L)).thenReturn(category);
         when(productRepository.save(any())).thenReturn(product);
 
@@ -80,7 +83,7 @@ class ProductServiceTest {
     void deleteProduct_success() {
         // given
         Category category = new Category("육류");
-        Product product = new Product(category, PRODUCT_NAME);
+        Product product = new Product(category, PRODUCT_NAME, "productCode1");
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         // when
@@ -96,7 +99,7 @@ class ProductServiceTest {
         // given
         Category category1 = new Category("육류");
         Category category2 = new Category("과일");
-        Product product = new Product(category1, PRODUCT_NAME);
+        Product product = new Product(category1, PRODUCT_NAME, "productCode1");
 
         UpdateProductRequest request = new UpdateProductRequest(1L, 2L, "사과");
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
@@ -114,8 +117,8 @@ class ProductServiceTest {
     @DisplayName("카테고리별 상품 페이징 조회 성공")
     void getProductsByCategory_success() {
         // given
-        ProductDto p1 = new ProductDto(1L, 1L, "소고기");
-        ProductDto p2 = new ProductDto(2L, 1L, "닭고기");
+        ProductDto p1 = new ProductDto(1L, 1L, "소고기", "productCode1");
+        ProductDto p2 = new ProductDto(2L, 1L, "닭고기", "productCode2");
 
         Page<ProductDto> productPage = new PageImpl<>(List.of(p1, p2));
         when(productRepository.findAllByCategory(eq(1L), any(Pageable.class))).thenReturn(productPage);
@@ -137,7 +140,24 @@ class ProductServiceTest {
 
         // when & then
         assertThatThrownBy(() -> productService.getProduct(99L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(ProductService.NOT_EXIST_PRODUCT);
+                .isInstanceOf(BusinessException.class)
+                .hasMessage(ResponseCode.PRODUCT_ERROR_002.getMessage());
+    }
+
+    @Test
+    @DisplayName("이미 등록된 상품의 경우 예외 발생")
+    void createProduct_error() {
+        // given
+        CreateProductRequest request = new CreateProductRequest(1L, PRODUCT_NAME, "productCode1");
+        Category category = new Category("육류");
+        Product product = new Product(category, PRODUCT_NAME, "productCode1");
+
+        when(productRepository.existsByProductCode(any())).thenReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> productService.createProduct(request))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage(ResponseCode.PRODUCT_ERROR_OO1.getMessage());
+
     }
 }

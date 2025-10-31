@@ -1,5 +1,6 @@
 package com.wjc.codetest.product.service;
 
+import com.wjc.codetest.global.exception.BusinessException;
 import com.wjc.codetest.product.model.domain.Category;
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
 import com.wjc.codetest.product.model.domain.Product;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static com.wjc.codetest.global.response.ResponseCode.*;
 
 @Slf4j
 @Service
@@ -35,8 +38,6 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
 
-    public static final String NOT_EXIST_PRODUCT = "product not found";
-
     @Transactional(readOnly = true)
     public ProductDto getProduct(Long productId) {
         return getProductDto(getProductEntity(productId));
@@ -46,15 +47,21 @@ public class ProductService {
     private Product getProductEntity(Long productId) {
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
-            throw new IllegalArgumentException(NOT_EXIST_PRODUCT);
+            throw new BusinessException(PRODUCT_ERROR_002);
         }
         return productOptional.get();
     }
 
     @Transactional
     public ProductDto createProduct(CreateProductRequest createProductRequest) {
+        if(productRepository.existsByProductCode(createProductRequest.productCode())) {
+            throw new BusinessException(PRODUCT_ERROR_OO1);
+        }
         Category category = categoryService.getCategoryEntity(createProductRequest.categoryId());
-        return getProductDto(productRepository.save(new Product(category, createProductRequest.name())));
+        return getProductDto(productRepository.save(
+                new Product(category,
+                        createProductRequest.name(),
+                        createProductRequest.productCode())));
     }
 
     @Transactional
@@ -77,6 +84,10 @@ public class ProductService {
     }
 
     private ProductDto getProductDto(Product product) {
-        return new ProductDto(product.getId(), product.getCategoryId(), product.getName());
+        return new ProductDto(
+                product.getId(),
+                product.getCategoryId(),
+                product.getName(),
+                product.getProductCode());
     }
 }

@@ -15,6 +15,9 @@ public class Product {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "product_code", unique = true, nullable = false, updatable = false)
+    private String productCode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -24,10 +27,12 @@ public class Product {
 
     public Product(
             Category category,
-            String name
+            String name,
+            String productCode
     ) {
         this.category = category;
         this.name = name;
+        this.productCode = productCode;
         category.addProduct(this);
     }
 

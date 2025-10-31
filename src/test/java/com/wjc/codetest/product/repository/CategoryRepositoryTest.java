@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.List;
 
@@ -35,8 +34,8 @@ class CategoryRepositoryTest {
         em.persist(cat2);
         em.persist(cat3);
 
-        Product p1 = new Product(cat1, "과자");
-        Product p2 = new Product(cat2, "냉장고");
+        Product p1 = new Product(cat1, "과자", "productCode1");
+        Product p2 = new Product(cat2, "냉장고", "productCode2");
         em.persist(p1);
         em.persist(p2);
         em.flush();
@@ -60,7 +59,7 @@ class CategoryRepositoryTest {
         em.persist(cat1);
         em.persist(cat2);
 
-        Product p1 = new Product(cat1, "과자");
+        Product p1 = new Product(cat1, "과자", "productCode1");
         em.persist(p1);
         em.flush();
         em.clear();

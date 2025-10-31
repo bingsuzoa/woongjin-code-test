@@ -8,12 +8,16 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class CategoryTest {
 
+    Product getProduct(Category category) {
+        return new Product(category, "삼겹살", "productCode");
+    }
+
     @Test
     @DisplayName("상품 추가 시 카테고리의 상품 목록에 정상적으로 추가된다")
     void addProduct_success() {
         // given
         Category category = new Category("육류");
-        Product product = new Product(category, "삼겹살");
+        Product product = getProduct(category);
         ReflectionTestUtils.setField(product, "id", 1L);
 
         // then
@@ -27,8 +31,8 @@ public class CategoryTest {
     void removeProduct_success() {
         // given
         Category category = new Category("육류");
-        Product p1 = new Product(category, "삼겹살");
-        Product p2 = new Product(category, "소고기");
+        Product p1 = getProduct(category);
+        Product p2 = new Product(category, "소고기","productCode2");
         ReflectionTestUtils.setField(p1, "id", 1L);
         ReflectionTestUtils.setField(p2, "id", 2L);
 
@@ -47,8 +51,8 @@ public class CategoryTest {
     void productsConsistency_afterAddAndRemove() {
         // given
         Category category = new Category("과일");
-        Product p1 = new Product(category, "사과");
-        Product p2 = new Product(category, "배");
+        Product p1 = new Product(category, "사과", "productCode1");
+        Product p2 = new Product(category, "배", "productCode2");
         ReflectionTestUtils.setField(p1, "id", 1L);
         ReflectionTestUtils.setField(p2, "id", 2L);
 

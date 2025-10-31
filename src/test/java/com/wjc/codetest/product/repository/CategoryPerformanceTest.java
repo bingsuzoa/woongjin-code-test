@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 @DataJpaTest
@@ -26,8 +28,12 @@ public class CategoryPerformanceTest {
     void setUp() {
         IntStream.rangeClosed(1, 1000).forEach(i -> {
             Category c = categoryRepository.save(new Category("카테고리" + i));
-            IntStream.rangeClosed(1, 10)
-                    .forEach(j -> productRepository.save(new Product(c, "상품" + j)));
+
+            IntStream.rangeClosed(1, 10).forEach(j -> {
+                String code = String.format("P-%04d-%03d", i, j);
+                Product p = new Product(c, "상품" + j, code);
+                productRepository.save(p);
+            });
         });
     }
 

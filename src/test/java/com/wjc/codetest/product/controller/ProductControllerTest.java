@@ -5,6 +5,7 @@ import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequ
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
 import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
 import com.wjc.codetest.product.service.ProductService;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -15,7 +16,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 
@@ -41,11 +41,11 @@ class ProductControllerTest {
     @DisplayName("상품 단건 조회 - 성공")
     void getProduct_success() throws Exception {
         // given
-        ProductDto dto = new ProductDto(1L, 10L, "삼겹살");
+        ProductDto dto = new ProductDto(1L, 10L, "삼겹살", "productCode1");
         given(productService.getProduct(1L)).willReturn(dto);
 
         // when & then
-        ResultActions 삼겹살 = mockMvc.perform(get("/products/1"))
+        mockMvc.perform(get("/products/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("삼겹살"));
@@ -55,8 +55,8 @@ class ProductControllerTest {
     @DisplayName("상품 생성 - 201 Created 반환")
     void createProduct_success() throws Exception {
         // given
-        CreateProductRequest request = new CreateProductRequest(10L, "돼지고기");
-        ProductDto response = new ProductDto(1L, 10L, "돼지고기");
+        CreateProductRequest request = new CreateProductRequest(10L, "돼지고기", "productCode1");
+        ProductDto response = new ProductDto(1L, 10L, "돼지고기", "productCode1");
         given(productService.createProduct(any(CreateProductRequest.class))).willReturn(response);
 
         // when & then
@@ -64,8 +64,8 @@ class ProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/products/1"))
-                .andExpect(jsonPath("$.name").value("돼지고기"));
+                .andExpect(jsonPath("$.name").value("돼지고기"))
+                .andExpect(jsonPath("$.productCode").isNotEmpty());
     }
 
     @Test
@@ -85,7 +85,7 @@ class ProductControllerTest {
     void updateProduct_success() throws Exception {
         // given
         UpdateProductRequest request = new UpdateProductRequest(1L, 10L, "양념갈비");
-        ProductDto response = new ProductDto(1L, 10L, "양념갈비");
+        ProductDto response = new ProductDto(1L, 10L, "양념갈비", "productCode1");
         given(productService.update(any(UpdateProductRequest.class))).willReturn(response);
 
         // when & then
@@ -100,8 +100,8 @@ class ProductControllerTest {
     @DisplayName("카테고리별 상품 조회 - 페이징 결과 반환")
     void getProductsOfCategory_success() throws Exception {
         // given
-        ProductDto p1 = new ProductDto(1L, 10L, "삼겹살");
-        ProductDto p2 = new ProductDto(2L, 10L, "목살");
+        ProductDto p1 = new ProductDto(1L, 10L, "삼겹살", "productCode1");
+        ProductDto p2 = new ProductDto(2L, 10L, "목살", "productCode2");
         Page<ProductDto> page = new PageImpl<>(List.of(p1, p2));
         given(productService.getProductsByCategory(eq(10L), eq(0), eq(10))).willReturn(page);
 

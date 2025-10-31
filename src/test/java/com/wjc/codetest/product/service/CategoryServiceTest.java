@@ -1,5 +1,7 @@
 package com.wjc.codetest.product.service;
 
+import com.wjc.codetest.global.exception.BusinessException;
+import com.wjc.codetest.global.response.ResponseCode;
 import com.wjc.codetest.product.controller.dto.request.category.CreateCategoryRequest;
 import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
 import com.wjc.codetest.product.model.domain.Category;
@@ -41,6 +43,7 @@ public class CategoryServiceTest {
         Category saved = new Category(CATEGORY_NAME);
         ReflectionTestUtils.setField(saved, "id", 1L);
 
+        when(categoryRepository.existsByName(any())).thenReturn(false);
         when(categoryRepository.save(any())).thenReturn(saved);
 
         // when
@@ -136,7 +139,23 @@ public class CategoryServiceTest {
 
         // when & then
         assertThatThrownBy(() -> categoryService.getCategoryEntity(1L))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(CategoryService.NOT_EXIST_CATEGORY);
+                .isInstanceOf(BusinessException.class)
+                .hasMessage(ResponseCode.CATEGORY_ERROR_002.getMessage());
+    }
+
+    @Test
+    @DisplayName("이미 등록된 카테고리 예외 발생")
+    void createCategory_error() {
+        // given
+        CreateCategoryRequest request = new CreateCategoryRequest(CATEGORY_NAME);
+        Category saved = new Category(CATEGORY_NAME);
+        ReflectionTestUtils.setField(saved, "id", 1L);
+
+        when(categoryRepository.existsByName(any())).thenReturn(true);
+
+        // when
+        assertThatThrownBy(() -> categoryService.create(request))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage(ResponseCode.CATEGORY_ERROR_001.getMessage());
     }
 }

@@ -47,7 +47,7 @@ class ProductControllerIntegrationTest {
     @Test
     @DisplayName("상품 생성 시 201 Created와 Location 헤더를 반환한다")
     void createProduct_success() throws Exception {
-        CreateProductRequest request = new CreateProductRequest(category.getId(), "초코파이");
+        CreateProductRequest request = new CreateProductRequest(category.getId(), "초코파이", "productCode1");
 
         mockMvc.perform(post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -61,7 +61,7 @@ class ProductControllerIntegrationTest {
     @Test
     @DisplayName("상품 단건 조회 - 200 OK")
     void getProduct_success() throws Exception {
-        Product saved = productRepository.save(new Product(category, "라면"));
+        Product saved = productRepository.save(new Product(category, "라면", "productCode1"));
 
         mockMvc.perform(get("/products/{productId}", saved.getId()))
                 .andExpect(status().isOk())
@@ -72,7 +72,7 @@ class ProductControllerIntegrationTest {
     @Test
     @DisplayName("상품 수정 시 200 OK로 업데이트된 결과 반환")
     void updateProduct_success() throws Exception {
-        Product saved = productRepository.save(new Product(category, "라면"));
+        Product saved = productRepository.save(new Product(category, "라면", "productCode1"));
         UpdateProductRequest request = new UpdateProductRequest(saved.getId(), category.getId(), "신라면");
 
         mockMvc.perform(put("/products")
@@ -85,7 +85,7 @@ class ProductControllerIntegrationTest {
     @Test
     @DisplayName("상품 삭제 시 true와 200 OK 반환")
     void deleteProduct_success() throws Exception {
-        Product saved = productRepository.save(new Product(category, "과자"));
+        Product saved = productRepository.save(new Product(category, "과자", "productCode1"));
 
         mockMvc.perform(delete("/products/{productId}", saved.getId()))
                 .andExpect(status().isOk())
@@ -98,7 +98,7 @@ class ProductControllerIntegrationTest {
     @DisplayName("카테고리별 상품 페이징 조회")
     void getProductsOfCategory_success() throws Exception {
         IntStream.rangeClosed(1, 15)
-                .forEach(i -> productRepository.save(new Product(category, "상품" + i)));
+                .forEach(i -> productRepository.save(new Product(category, "상품" + i, "productCode" + i)));
 
         mockMvc.perform(get("/products/category/{categoryId}", category.getId())
                         .param("page", "0")

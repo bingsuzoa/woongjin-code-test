@@ -1,5 +1,6 @@
 package com.wjc.codetest.product.controller;
 
+import com.wjc.codetest.global.response.UriBuilder;
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
 import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
@@ -33,8 +34,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductDto> createProduct(@RequestBody CreateProductRequest createProductRequest){
         ProductDto product = productService.createProduct(createProductRequest);
-        URI location = URI.create("/products/" + product.id());
-        return ResponseEntity.created(location).body(product);
+        return ResponseEntity.created(UriBuilder.buildCurrentUri(product.id())).body(product);
     }
 
     @DeleteMapping("/{productId}")

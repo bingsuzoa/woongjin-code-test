@@ -38,7 +38,7 @@ class CategoryControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("카테고리 생성 성공 - 200 OK 및 CategoryDto 반환")
+    @DisplayName("카테고리 생성 성공 - 201 및 CategoryDto 반환")
     void createCategory_success() throws Exception {
         // given
         CreateCategoryRequest request = new CreateCategoryRequest("식품");
@@ -47,7 +47,7 @@ class CategoryControllerIntegrationTest {
         mockMvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("식품"));
 
         // verify
@@ -62,8 +62,8 @@ class CategoryControllerIntegrationTest {
         Category category2 = categoryRepository.save(new Category("가전"));
         Category category3 = categoryRepository.save(new Category("패션"));
 
-        productRepository.save(new Product(category1, "초코파이"));
-        productRepository.save(new Product(category2, "노트북"));
+        productRepository.save(new Product(category1, "초코파이", "productCode1"));
+        productRepository.save(new Product(category2, "노트북","productCode2"));
 
         // when & then
         mockMvc.perform(get("/categories"))
