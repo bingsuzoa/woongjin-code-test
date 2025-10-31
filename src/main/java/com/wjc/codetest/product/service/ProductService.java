@@ -1,11 +1,11 @@
 package com.wjc.codetest.product.service;
 
 import com.wjc.codetest.global.exception.BusinessException;
-import com.wjc.codetest.product.model.domain.Category;
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
-import com.wjc.codetest.product.model.domain.Product;
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
 import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
+import com.wjc.codetest.product.model.domain.Category;
+import com.wjc.codetest.product.model.domain.Product;
 import com.wjc.codetest.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +14,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Optional;
 
-import static com.wjc.codetest.global.response.ResponseCode.*;
+import static com.wjc.codetest.global.response.ResponseCode.PRODUCT_ERROR_002;
+import static com.wjc.codetest.global.response.ResponseCode.PRODUCT_ERROR_OO1;
 
 @Slf4j
 @Service
@@ -54,7 +55,7 @@ public class ProductService {
 
     @Transactional
     public ProductDto createProduct(CreateProductRequest createProductRequest) {
-        if(productRepository.existsByProductCode(createProductRequest.productCode())) {
+        if (productRepository.existsByProductCode(createProductRequest.productCode())) {
             throw new BusinessException(PRODUCT_ERROR_OO1);
         }
         Category category = categoryService.getCategoryEntity(createProductRequest.categoryId());

@@ -41,10 +41,7 @@ public class Product {
     }
 
     public boolean isInCategory(Long categoryId) {
-        if(getCategoryId().equals(categoryId)) {
-            return true;
-        }
-        return false;
+        return getCategoryId().equals(categoryId);
     }
 
     public void updateName(String name) {

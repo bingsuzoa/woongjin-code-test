@@ -1,7 +1,7 @@
 package com.wjc.codetest.product.controller.dto.response.category;
 
-public record CategoryDto (
+public record CategoryDto(
         Long id,
         String name
-){
+) {
 }

@@ -48,7 +48,7 @@ class CategoryControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("식품"));
+                .andExpect(jsonPath("$.response.data.name").value("식품"));
 
         // verify
         assertThat(categoryRepository.findAll()).hasSize(1);
@@ -68,7 +68,7 @@ class CategoryControllerIntegrationTest {
         // when & then
         mockMvc.perform(get("/categories"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.response.data").isArray())
+                .andExpect(jsonPath("$.response.data.length()").value(2));
     }
 }

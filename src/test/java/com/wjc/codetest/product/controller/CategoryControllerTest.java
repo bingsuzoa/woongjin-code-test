@@ -48,8 +48,8 @@ class CategoryControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value("육류"));
+                .andExpect(jsonPath("$.response.data.id").value(1L))
+                .andExpect(jsonPath("$.response.data.name").value("육류"));
     }
 
     @Test
@@ -65,7 +65,7 @@ class CategoryControllerTest {
         // when & then
         mockMvc.perform(get("/categories"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("육류"))
-                .andExpect(jsonPath("$[1].name").value("과일"));
+                .andExpect(jsonPath("$.response.data[0].name").value("육류"))
+                .andExpect(jsonPath("$.response.data[1].name").value("과일"));
     }
 }

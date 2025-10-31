@@ -24,7 +24,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryDto create(CreateCategoryRequest createCategoryRequest) {
-        if(categoryRepository.existsByName(createCategoryRequest.name())) {
+        if (categoryRepository.existsByName(createCategoryRequest.name())) {
             throw new BusinessException(ResponseCode.CATEGORY_ERROR_001);
         }
         Category category = categoryRepository.save(new Category(createCategoryRequest.name()));

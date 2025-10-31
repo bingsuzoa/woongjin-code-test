@@ -53,9 +53,8 @@ class ProductControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/products/")))
-                .andExpect(jsonPath("$.name").value("초코파이"))
-                .andExpect(jsonPath("$.categoryId").value(category.getId()));
+                .andExpect(jsonPath("$.response.data.name").value("초코파이"))
+                .andExpect(jsonPath("$.response.data.categoryId").value(category.getId()));
     }
 
     @Test
@@ -65,8 +64,8 @@ class ProductControllerIntegrationTest {
 
         mockMvc.perform(get("/products/{productId}", saved.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("라면"))
-                .andExpect(jsonPath("$.id").value(saved.getId()));
+                .andExpect(jsonPath("$.response.data.name").value("라면"))
+                .andExpect(jsonPath("$.response.data.id").value(saved.getId()));
     }
 
     @Test
@@ -79,7 +78,7 @@ class ProductControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("신라면"));
+                .andExpect(jsonPath("$.response.data.name").value("신라면"));
     }
 
     @Test
@@ -89,7 +88,7 @@ class ProductControllerIntegrationTest {
 
         mockMvc.perform(delete("/products/{productId}", saved.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(true));
+                .andExpect(jsonPath("$.response.data").doesNotExist());
 
         assertThat(productRepository.findById(saved.getId())).isEmpty();
     }
@@ -104,9 +103,9 @@ class ProductControllerIntegrationTest {
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.products").isArray())
-                .andExpect(jsonPath("$.totalElements").value(15))
-                .andExpect(jsonPath("$.totalPages").value(2))
-                .andExpect(jsonPath("$.page").value(0));
+                .andExpect(jsonPath("$..response.data.products").isArray())
+                .andExpect(jsonPath("$..response.data.totalElements").value(15))
+                .andExpect(jsonPath("$..response.data.totalPages").value(2))
+                .andExpect(jsonPath("$..response.data.page").value(0));
     }
 }

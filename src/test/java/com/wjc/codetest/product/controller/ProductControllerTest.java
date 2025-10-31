@@ -5,7 +5,6 @@ import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequ
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
 import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
 import com.wjc.codetest.product.service.ProductService;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -47,8 +46,8 @@ class ProductControllerTest {
         // when & then
         mockMvc.perform(get("/products/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value("삼겹살"));
+                .andExpect(jsonPath("$.response.data.id").value(1L))
+                .andExpect(jsonPath("$.response.data.name").value("삼겹살"));
     }
 
     @Test
@@ -64,8 +63,8 @@ class ProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("돼지고기"))
-                .andExpect(jsonPath("$.productCode").isNotEmpty());
+                .andExpect(jsonPath("$.response.data.name").value("돼지고기"))
+                .andExpect(jsonPath("$.response.data.productCode").isNotEmpty());
     }
 
     @Test
@@ -76,8 +75,7 @@ class ProductControllerTest {
 
         // when & then
         mockMvc.perform(delete("/products/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -93,7 +91,7 @@ class ProductControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("양념갈비"));
+                .andExpect(jsonPath("$.response.data.name").value("양념갈비"));
     }
 
     @Test
@@ -110,8 +108,8 @@ class ProductControllerTest {
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.products").isArray())
-                .andExpect(jsonPath("$.products[0].name").value("삼겹살"))
-                .andExpect(jsonPath("$.products[1].name").value("목살"));
+                .andExpect(jsonPath("$.response.data.products").isArray())
+                .andExpect(jsonPath("$.response.data.products[0].name").value("삼겹살"))
+                .andExpect(jsonPath("$.response.data.products[1].name").value("목살"));
     }
 }
