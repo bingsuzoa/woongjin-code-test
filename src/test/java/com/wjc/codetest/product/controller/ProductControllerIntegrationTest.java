@@ -25,7 +25,8 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringBootTest
@@ -150,12 +151,12 @@ class ProductControllerIntegrationTest {
     void createProduct_nullName_returnsValidationError() throws Exception {
         // given
         String invalidRequest = """
-            {
-              "categoryId": 1,
-              "name": null,
-              "productCode": "PRD-AAA111"
-            }
-        """;
+                    {
+                      "categoryId": 1,
+                      "name": null,
+                      "productCode": "PRD-AAA111"
+                    }
+                """;
 
         // when & then
         mockMvc.perform(post("/products")
@@ -170,12 +171,12 @@ class ProductControllerIntegrationTest {
     void createProduct_nullCategory_returnsValidationError() throws Exception {
         // given
         String invalidRequest = """
-            {
-              "categoryId": null,
-              "name": "초코파이",
-              "productCode": "PRD-AAA111"
-            }
-        """;
+                    {
+                      "categoryId": null,
+                      "name": "초코파이",
+                      "productCode": "PRD-AAA111"
+                    }
+                """;
 
         // when & then
         mockMvc.perform(post("/products")
@@ -190,12 +191,12 @@ class ProductControllerIntegrationTest {
     void createProduct_nullProductCode_returnsValidationError() throws Exception {
         // given
         String invalidRequest = """
-            {
-              "categoryId": 1,
-              "name": "초코파이",
-              "productCode": null
-            }
-        """;
+                    {
+                      "categoryId": 1,
+                      "name": "초코파이",
+                      "productCode": null
+                    }
+                """;
 
         // when & then
         mockMvc.perform(post("/products")

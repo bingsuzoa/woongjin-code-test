@@ -1,8 +1,11 @@
 package com.wjc.codetest.product.repository;
 
 import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
-import com.wjc.codetest.product.model.domain.Category;
-import com.wjc.codetest.product.model.domain.Product;
+import com.wjc.codetest.product.model.domain.category.Category;
+import com.wjc.codetest.product.model.domain.category.CategoryName;
+import com.wjc.codetest.product.model.domain.product.Product;
+import com.wjc.codetest.product.model.domain.product.ProductCode;
+import com.wjc.codetest.product.model.domain.product.ProductName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.IntStream;
 
 @DataJpaTest
@@ -26,13 +27,19 @@ public class CategoryPerformanceTest {
 
     @BeforeEach
     void setUp() {
-        IntStream.rangeClosed(1, 1000).forEach(i -> {
-            Category c = categoryRepository.save(new Category("카테고리" + i));
+        IntStream.rangeClosed(1, 100).forEach(i -> {
+            Category category = categoryRepository.save(
+                    new Category(CategoryName.from("카테고리" + i))
+            );
 
             IntStream.rangeClosed(1, 10).forEach(j -> {
-                String code = String.format("P-%04d-%03d", i, j);
-                Product p = new Product(c, "상품" + j, code);
-                productRepository.save(p);
+                String code = String.format("PRD-%03d%03d", i, j);
+                Product product = new Product(
+                        category,
+                        ProductName.from("상품" + j),
+                        ProductCode.from(code)
+                );
+                productRepository.save(product);
             });
         });
     }
