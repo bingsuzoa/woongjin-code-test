@@ -1,57 +1,67 @@
 package com.wjc.codetest.product.controller;
 
-import com.wjc.codetest.product.model.request.CreateProductRequest;
-import com.wjc.codetest.product.model.request.GetProductListRequest;
-import com.wjc.codetest.product.model.domain.Product;
-import com.wjc.codetest.product.model.request.UpdateProductRequest;
-import com.wjc.codetest.product.model.response.ProductListResponse;
+import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
+import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
+import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
+import com.wjc.codetest.product.controller.dto.response.product.ProductsResponse;
 import com.wjc.codetest.product.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
+    /// 2-1. RESTful 원칙 위반
+    /// 2-2. HTTP 응답 상태 코드 일관성 부족
+    /// 2-3. ApiResponse 기반 공통 응답 포맷 통일
+    /// 2-4. Entity 직접 반환 문제
+    /// 2-5. 메서드 네이밍 개선 필요
+
     private final ProductService productService;
 
-    @GetMapping(value = "/get/product/by/{productId}")
-    public ResponseEntity<Product> getProductById(@PathVariable(name = "productId") Long productId){
-        Product product = productService.getProductById(productId);
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductDto> getProduct(@PathVariable Long productId) {
+        ProductDto product = productService.getProduct(productId);
         return ResponseEntity.ok(product);
     }
 
-    @PostMapping(value = "/create/product")
-    public ResponseEntity<Product> createProduct(@RequestBody CreateProductRequest dto){
-        Product product = productService.create(dto);
+    @PostMapping
+    public ResponseEntity<ProductDto> createProduct(@Valid  @RequestBody CreateProductRequest request) {
+        ProductDto product = productService.createProduct(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(product);
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
+        productService.delete(productId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<ProductDto> updateProduct(@Valid @RequestBody UpdateProductRequest request) {
+        ProductDto product = productService.update(request);
         return ResponseEntity.ok(product);
     }
 
-    @PostMapping(value = "/delete/product/{productId}")
-    public ResponseEntity<Boolean> deleteProduct(@PathVariable(name = "productId") Long productId){
-        productService.deleteById(productId);
-        return ResponseEntity.ok(true);
-    }
-
-    @PostMapping(value = "/update/product")
-    public ResponseEntity<Product> updateProduct(@RequestBody UpdateProductRequest dto){
-        Product product = productService.update(dto);
-        return ResponseEntity.ok(product);
-    }
-
-    @PostMapping(value = "/product/list")
-    public ResponseEntity<ProductListResponse> getProductListByCategory(@RequestBody GetProductListRequest dto){
-        Page<Product> productList = productService.getListByCategory(dto);
-        return ResponseEntity.ok(new ProductListResponse(productList.getContent(), productList.getTotalPages(), productList.getTotalElements(), productList.getNumber()));
-    }
-
-    @GetMapping(value = "/product/category/list")
-    public ResponseEntity<List<String>> getProductListByCategory(){
-        List<String> uniqueCategories = productService.getUniqueCategories();
-        return ResponseEntity.ok(uniqueCategories);
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<ProductsResponse> getProductsOfCategory(
+            @PathVariable Long categoryId,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        Page<ProductDto> products = productService.getProductsByCategory(categoryId, page, size);
+        ProductsResponse response = new ProductsResponse(
+                products.getContent(),
+                products.getTotalPages(),
+                products.getTotalElements(),
+                products.getNumber()
+        );
+        return ResponseEntity.ok(response);
     }
 }

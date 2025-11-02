@@ -35,3 +35,12 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# macOS system files
+.DS_Store
+src/.DS_Store
+src/main/.DS_Store
+src/main/resources/.DS_Store
+
+# JVM heap dump files
+*.hprof
