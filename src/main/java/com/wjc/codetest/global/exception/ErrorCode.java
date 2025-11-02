@@ -1,4 +1,4 @@
-package com.wjc.codetest.global.response;
+package com.wjc.codetest.global.exception;
 
 import lombok.Getter;
 
@@ -14,6 +14,7 @@ public enum ErrorCode {
     /// Category
     CATEGORY_ERROR_001(400, "CATEGORY_ERROR_001", "이미 등록된 카테고리를 등록 시도함"),
     CATEGORY_ERROR_002(400, "CATEGORY_ERROR_002", "존재하지 않는 카테고리를 찾으려고 시도함"),
+    CATEGORY_ERROR_003(400, "CATEGORY_ERROR_003", "카테고리 이름이 규칙에 맞지 않음"),
 
     /// Common
     VALIDATION_ERROR(400, "VALIDATION_ERROR", "잘못된 요청입니다."),

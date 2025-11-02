@@ -1,12 +1,11 @@
 package com.wjc.codetest.product.controller;
 
-import com.wjc.codetest.global.response.ApiResponse;
-import com.wjc.codetest.global.response.ResponseCode;
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
 import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
 import com.wjc.codetest.product.controller.dto.response.product.ProductsResponse;
 import com.wjc.codetest.product.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -27,38 +26,42 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductDto>> getProduct(@PathVariable(name = "productId") Long productId) {
+    public ResponseEntity<ProductDto> getProduct(@PathVariable Long productId) {
         ProductDto product = productService.getProduct(productId);
-        return ApiResponse.success(ResponseCode.PRODUCT_SUCCESS, HttpStatus.OK, product);
+        return ResponseEntity.ok(product);
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductDto>> createProduct(@RequestBody CreateProductRequest createProductRequest) {
-        ProductDto product = productService.createProduct(createProductRequest);
-        return ApiResponse.success(ResponseCode.PRODUCT_SUCCESS, HttpStatus.CREATED, product);
+    public ResponseEntity<ProductDto> createProduct(@Valid  @RequestBody CreateProductRequest request) {
+        ProductDto product = productService.createProduct(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long productId) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
         productService.delete(productId);
-        return ApiResponse.success(ResponseCode.PRODUCT_SUCCESS, HttpStatus.OK, null);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<ProductDto>> updateProduct(@RequestBody UpdateProductRequest updateProductRequest) {
-        ProductDto product = productService.update(updateProductRequest);
-        return ApiResponse.success(ResponseCode.PRODUCT_SUCCESS, HttpStatus.OK, product);
-
+    public ResponseEntity<ProductDto> updateProduct(@Valid @RequestBody UpdateProductRequest request) {
+        ProductDto product = productService.update(request);
+        return ResponseEntity.ok(product);
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<ApiResponse<ProductsResponse>> getProductsOfCategory(
+    public ResponseEntity<ProductsResponse> getProductsOfCategory(
             @PathVariable Long categoryId,
             @RequestParam int page,
             @RequestParam int size
     ) {
         Page<ProductDto> products = productService.getProductsByCategory(categoryId, page, size);
-        ProductsResponse response = new ProductsResponse(products.getContent(), products.getTotalPages(), products.getTotalElements(), products.getNumber());
-        return ApiResponse.success(ResponseCode.PRODUCT_SUCCESS, HttpStatus.OK, response);
+        ProductsResponse response = new ProductsResponse(
+                products.getContent(),
+                products.getTotalPages(),
+                products.getTotalElements(),
+                products.getNumber()
+        );
+        return ResponseEntity.ok(response);
     }
 }

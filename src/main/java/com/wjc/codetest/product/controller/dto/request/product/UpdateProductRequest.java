@@ -1,8 +1,13 @@
 package com.wjc.codetest.product.controller.dto.request.product;
 
+import jakarta.validation.constraints.NotNull;
+
 public record UpdateProductRequest(
+        @NotNull
         Long id,
+        @NotNull
         Long categoryId,
+        @NotNull
         String name
 ) {
 }

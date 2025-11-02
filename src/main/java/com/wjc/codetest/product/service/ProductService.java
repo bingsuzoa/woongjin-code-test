@@ -4,8 +4,10 @@ import com.wjc.codetest.global.exception.BusinessException;
 import com.wjc.codetest.product.controller.dto.request.product.CreateProductRequest;
 import com.wjc.codetest.product.controller.dto.request.product.UpdateProductRequest;
 import com.wjc.codetest.product.controller.dto.response.product.ProductDto;
-import com.wjc.codetest.product.model.domain.Category;
-import com.wjc.codetest.product.model.domain.Product;
+import com.wjc.codetest.product.model.domain.category.Category;
+import com.wjc.codetest.product.model.domain.product.Product;
+import com.wjc.codetest.product.model.domain.product.ProductCode;
+import com.wjc.codetest.product.model.domain.product.ProductName;
 import com.wjc.codetest.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.wjc.codetest.global.response.ResponseCode.PRODUCT_ERROR_002;
-import static com.wjc.codetest.global.response.ResponseCode.PRODUCT_ERROR_OO1;
+import static com.wjc.codetest.global.exception.ErrorCode.PRODUCT_ERROR_002;
+import static com.wjc.codetest.global.exception.ErrorCode.PRODUCT_ERROR_OO1;
 
 @Slf4j
 @Service
@@ -51,10 +53,9 @@ public class ProductService {
             throw new BusinessException(PRODUCT_ERROR_OO1);
         }
         Category category = categoryService.getCategoryEntity(createProductRequest.categoryId());
-        return getProductDto(productRepository.save(
-                new Product(category,
-                        createProductRequest.name(),
-                        createProductRequest.productCode())));
+        ProductName name = ProductName.from(createProductRequest.name());
+        ProductCode code = ProductCode.from(createProductRequest.productCode());
+        return getProductDto(productRepository.save(new Product(category, name, code)));
     }
 
     @Transactional
@@ -66,7 +67,7 @@ public class ProductService {
     public ProductDto update(UpdateProductRequest updateProductRequest) {
         Product product = getProductEntity(updateProductRequest.id());
         categoryService.updateCategory(product, updateProductRequest.categoryId());
-        product.updateName(updateProductRequest.name());
+        product.updateName(ProductName.from(updateProductRequest.name()));
         return getProductDto(product);
     }
 
@@ -81,6 +82,6 @@ public class ProductService {
                 product.getId(),
                 product.getCategoryId(),
                 product.getName(),
-                product.getProductCode());
+                product.getCode());
     }
 }

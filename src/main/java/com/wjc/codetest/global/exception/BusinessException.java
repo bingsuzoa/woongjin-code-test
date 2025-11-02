@@ -1,18 +1,18 @@
 package com.wjc.codetest.global.exception;
 
-import com.wjc.codetest.global.response.ResponseCode;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 public class BusinessException extends RuntimeException {
 
-    private final ResponseCode responseCode;
-    private final HttpStatus status;
+    private final int statusCode;
+    private final String errorCode;
+    private final String detailMessage;
 
-    public BusinessException(ResponseCode responseCode) {
-        super(responseCode.getMessage());
-        this.responseCode = responseCode;
-        this.status = HttpStatus.BAD_REQUEST;
+    public BusinessException(ErrorCode code) {
+        super(code.getErrorCode());
+        statusCode = code.getStatusCode();
+        errorCode = code.getErrorCode();
+        this.detailMessage = code.getMessage();
     }
 }
