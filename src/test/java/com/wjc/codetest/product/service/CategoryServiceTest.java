@@ -1,11 +1,12 @@
 package com.wjc.codetest.product.service;
 
 import com.wjc.codetest.global.exception.BusinessException;
-import com.wjc.codetest.global.response.ResponseCode;
+import com.wjc.codetest.global.exception.ErrorCode;
 import com.wjc.codetest.product.controller.dto.request.category.CreateCategoryRequest;
 import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
-import com.wjc.codetest.product.model.domain.Category;
-import com.wjc.codetest.product.model.domain.Product;
+import com.wjc.codetest.product.model.domain.category.Category;
+import com.wjc.codetest.product.model.domain.category.CategoryName;
+import com.wjc.codetest.product.model.domain.product.Product;
 import com.wjc.codetest.product.repository.CategoryRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,22 +26,24 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CategoryServiceTest {
+class CategoryServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
     @InjectMocks
     private CategoryService categoryService;
 
     private static final String CATEGORY_NAME = "육류";
 
-    /// ///해피 테스트
+    /// /// 해피 테스트
+
     @Test
     @DisplayName("카테고리 생성 시 DTO로 반환된다")
     void createCategory_success() {
         // given
         CreateCategoryRequest request = new CreateCategoryRequest(CATEGORY_NAME);
-        Category saved = new Category(CATEGORY_NAME);
+        Category saved = new Category(CategoryName.from(CATEGORY_NAME));
         ReflectionTestUtils.setField(saved, "id", 1L);
 
         when(categoryRepository.existsByName(any())).thenReturn(false);
@@ -58,7 +61,7 @@ public class CategoryServiceTest {
     @DisplayName("카테고리 조회 성공 시 Category 엔티티 반환")
     void getCategoryEntity_success() {
         // given
-        Category category = new Category(CATEGORY_NAME);
+        Category category = new Category(CategoryName.from(CATEGORY_NAME));
         ReflectionTestUtils.setField(category, "id", 1L);
 
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
@@ -76,7 +79,7 @@ public class CategoryServiceTest {
     void updateCategory_changeCategory_success() {
         // given
         Product product = mock(Product.class);
-        Category newCategory = new Category("과일");
+        Category newCategory = new Category(CategoryName.from("과일"));
         ReflectionTestUtils.setField(newCategory, "id", 2L);
 
         when(product.isInCategory(anyLong())).thenReturn(false);
@@ -97,7 +100,7 @@ public class CategoryServiceTest {
     void updateCategory_alreadyInCategory() {
         // given
         Product product = mock(Product.class);
-        Category sameCategory = new Category(CATEGORY_NAME);
+        Category sameCategory = new Category(CategoryName.from(CATEGORY_NAME));
         ReflectionTestUtils.setField(sameCategory, "id", 1L);
 
         when(product.isInCategory(1L)).thenReturn(true);
@@ -109,6 +112,7 @@ public class CategoryServiceTest {
         // then
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getName()).isEqualTo(CATEGORY_NAME);
+        verify(product, never()).changeCategory(any(Category.class));
     }
 
     @Test
@@ -117,7 +121,6 @@ public class CategoryServiceTest {
         // given
         CategoryDto category1 = new CategoryDto(1L, "육류");
         CategoryDto category2 = new CategoryDto(2L, "과일");
-        CategoryDto category3 = new CategoryDto(3L, "가전");
 
         when(categoryRepository.findAllWithProductsDto())
                 .thenReturn(List.of(category1, category2));
@@ -127,10 +130,12 @@ public class CategoryServiceTest {
 
         // then
         assertThat(result.size()).isEqualTo(2);
+        assertThat(result.get(0).name()).isEqualTo("육류");
+        assertThat(result.get(1).name()).isEqualTo("과일");
     }
 
+    /// /// 예외 테스트
 
-    /// ///예외 테스트
     @Test
     @DisplayName("존재하지 않는 카테고리 조회 시 예외 발생")
     void getCategoryEntity_notFound_throwsException() {
@@ -140,7 +145,7 @@ public class CategoryServiceTest {
         // when & then
         assertThatThrownBy(() -> categoryService.getCategoryEntity(1L))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage(ResponseCode.CATEGORY_ERROR_002.getMessage());
+                .hasMessageContaining(ErrorCode.CATEGORY_ERROR_002.getErrorCode());
     }
 
     @Test
@@ -148,14 +153,12 @@ public class CategoryServiceTest {
     void createCategory_error() {
         // given
         CreateCategoryRequest request = new CreateCategoryRequest(CATEGORY_NAME);
-        Category saved = new Category(CATEGORY_NAME);
-        ReflectionTestUtils.setField(saved, "id", 1L);
 
         when(categoryRepository.existsByName(any())).thenReturn(true);
 
-        // when
+        // when & then
         assertThatThrownBy(() -> categoryService.create(request))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage(ResponseCode.CATEGORY_ERROR_001.getMessage());
+                .hasMessageContaining(ErrorCode.CATEGORY_ERROR_001.getErrorCode());
     }
 }

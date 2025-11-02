@@ -1,11 +1,12 @@
 package com.wjc.codetest.product.service;
 
 import com.wjc.codetest.global.exception.BusinessException;
-import com.wjc.codetest.global.response.ResponseCode;
+import com.wjc.codetest.global.exception.ErrorCode;
 import com.wjc.codetest.product.controller.dto.request.category.CreateCategoryRequest;
 import com.wjc.codetest.product.controller.dto.response.category.CategoryDto;
-import com.wjc.codetest.product.model.domain.Category;
-import com.wjc.codetest.product.model.domain.Product;
+import com.wjc.codetest.product.model.domain.category.Category;
+import com.wjc.codetest.product.model.domain.category.CategoryName;
+import com.wjc.codetest.product.model.domain.product.Product;
 import com.wjc.codetest.product.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static com.wjc.codetest.global.response.ResponseCode.CATEGORY_ERROR_002;
+import static com.wjc.codetest.global.exception.ErrorCode.CATEGORY_ERROR_002;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +26,10 @@ public class CategoryService {
     @Transactional
     public CategoryDto create(CreateCategoryRequest createCategoryRequest) {
         if (categoryRepository.existsByName(createCategoryRequest.name())) {
-            throw new BusinessException(ResponseCode.CATEGORY_ERROR_001);
+            throw new BusinessException(ErrorCode.CATEGORY_ERROR_001);
         }
-        Category category = categoryRepository.save(new Category(createCategoryRequest.name()));
+        CategoryName categoryName = CategoryName.from(createCategoryRequest.name());
+        Category category = categoryRepository.save(new Category(categoryName));
         return new CategoryDto(category.getId(), category.getName());
     }
 

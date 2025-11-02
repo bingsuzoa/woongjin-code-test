@@ -34,7 +34,7 @@ class CategoryControllerTest {
     private CategoryService categoryService;
 
     @Test
-    @DisplayName("카테고리 생성 성공")
+    @DisplayName("카테고리 생성 성공 - 201 상태와 CategoryDto 반환")
     void createCategory_success() throws Exception {
         // given
         CreateCategoryRequest request = new CreateCategoryRequest("육류");
@@ -48,12 +48,12 @@ class CategoryControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.response.data.id").value(1L))
-                .andExpect(jsonPath("$.response.data.name").value("육류"));
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("육류"));
     }
 
     @Test
-    @DisplayName("등록된 상품들의 카테고리 목록 조회")
+    @DisplayName("등록된 상품들의 카테고리 목록 조회 - 200 OK")
     void getCategoriesOfRegisteredProducts_success() throws Exception {
         // given
         List<CategoryDto> categories = List.of(
@@ -65,7 +65,10 @@ class CategoryControllerTest {
         // when & then
         mockMvc.perform(get("/categories"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.response.data[0].name").value("육류"))
-                .andExpect(jsonPath("$.response.data[1].name").value("과일"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].name").value("육류"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].name").value("과일"));
     }
 }
