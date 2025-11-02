@@ -34,6 +34,19 @@ Product 생성 시 Category 정보가 단순 문자열로만 표현되어 확장
 - 이에 따라 내부 식별자는 `id(Long)`로 유지하고,  
   `ProductCode`는 별도의 필드로 관리하여 비즈니스 식별자로만 활용함.
 
+#### 1-3. ProductName, ProductCode의 책임 분리 (Value Object 설계)
+
+**문제**
+기존 `Product` 엔티티에서 `name`, `code`가 단순 문자열(`String`)로 선언되어 있었음.
+
+**개선 내용**
+- `ProductName`, `ProductCode`를 각각 Value Object로 분리함
+- 각 클래스가 자신의 유효성 규칙을 스스로 검증하도록 책임을 위임함
+
+
+**적용 결과**
+- 문자열 유효성 검증 로직은 Value Object 내부로 위임되어 책임이 분리됨
+
 ---
 
 ### 2. Controller
@@ -68,18 +81,7 @@ HTTP Method와 URI 설계가 RESTful 원칙에 어긋남.
 
 ---
 
-#### 2-3. ApiResponse 기반 공통 응답 포맷 통일
-
-**문제**  
-Controller별 응답 형식이 제각각이어서 테스트, 예외 처리, 클라이언트 파싱 시 불편함이 발생함.  
-일부 API는 Boolean 또는 DTO를 직접 반환하고, 일부는 단순 `ResponseEntity.ok()`만 사용함.
-
-**개선 내용**
-- `ApiResponse<T>` 클래스를 도입하여 모든 API 응답을 일관된 구조로 반환하도록 통합함.
-- 성공/실패 응답을 정적 팩토리 메서드(`success`, `error`)로 구분하여 직관적인 코드 흐름을 제공함.
-- `BusinessException`, `GlobalExceptionHandler`를 통해 예외 응답도 동일한 포맷으로 처리하도록 개선함.
-
-#### 2-4. Entity 직접 반환 문제
+#### 2-3. Entity 직접 반환 문제
 
 **문제**  
 Entity를 그대로 JSON으로 변환할 경우,  
@@ -91,7 +93,7 @@ Entity를 그대로 JSON으로 변환할 경우,
 
 ---
 
-#### 2-5. 메서드 네이밍 개선 필요
+#### 2-4. 메서드 네이밍 개선 필요
 
 **문제**  
 메서드명이 데이터 접근 중심(`get`, `findBy...`)으로 되어 있어 행위 중심의 표현이 부족함.
